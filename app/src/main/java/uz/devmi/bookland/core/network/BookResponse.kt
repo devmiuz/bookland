@@ -5,9 +5,13 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class BookResponse(
+    @SerialName("id")
     val id: Int,
+    @SerialName("title")
     val title: String,
+    @SerialName("authors")
     val authors: List<Author>,
+    @SerialName("formats")
     val formats: Formats
 )
 

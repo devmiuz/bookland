@@ -6,6 +6,10 @@ import retrofit2.http.Query
 
 interface BookWebService {
 
-    @GET("books/")
+    @GET(PAGEABLE_BOOKS)
     suspend fun getBooks(@Query("page") page: Int): PageableResult<BookResponse>
+
+    private companion object{
+        const val PAGEABLE_BOOKS = "books/"
+    }
 }
