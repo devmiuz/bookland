@@ -30,10 +30,17 @@ class BookRepositoryImp(
         }
     }
 
-    override suspend fun fetchBooks(page: Int): Result<List<Book>> =
+    override suspend fun getBooks(
+        page: Int,
+        size: Int,
+        lastEntityId: Int
+    ): Result<List<Book>> =
         withContext(Dispatchers.IO) {
             try {
                 val apiResponse = bookWebService.getBooks(page)
+                // TODO: need to parse next page number
+                //https://gutendex.com/books/?page=3&sort=ascending
+                apiResponse.next
                 val bookEntities = apiResponse.results.map { it.toEntity() }
                 saveBooksToCache(bookEntities)
                 Result.success(
@@ -59,13 +66,15 @@ class BookRepositoryImp(
     private suspend fun getCachedBooks(page: Int, pageSize: Int): Result<List<Book>> =
         withContext(Dispatchers.IO) {
             runCatching {
-                val cachedBooks = realm.query<BookEntity>()
-                    .limit(pageSize) // Fetch only the required page size
-//                    .skip((page - 1) * pageSize) // Skip rows based on the current page
+                // TODO: need last read entity id
+                val lastEntityId = 0
+                val cachedBooks = realm.query<BookEntity>(
+                    "id >$0", lastEntityId
+                )
+                    .limit(pageSize)
                     .find()
                     .map { it.toDomain() }
-                if (cachedBooks.isNotEmpty()) cachedBooks
-                else throw Exception("No books found for page $page")
+                cachedBooks.ifEmpty { throw Exception("No books found for page $page") }
             }
         }
 

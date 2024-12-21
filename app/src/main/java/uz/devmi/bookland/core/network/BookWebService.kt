@@ -10,6 +10,6 @@ interface BookWebService {
     suspend fun getBooks(@Query("page") page: Int): PageableResult<BookResponse>
 
     private companion object{
-        const val PAGEABLE_BOOKS = "books/"
+        const val PAGEABLE_BOOKS = "books/?sort=ascending"
     }
 }
